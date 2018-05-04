@@ -804,7 +804,7 @@ func (self *Fetcher) aggregateVolumeStats(trade common.TradeLog, volumeStats map
 	self.aggregateVolumeStat(trade, dstAddr, destAmount, ethAmount, trade.FiatAmount, volumeStats)
 
 	//user volume
-	self.aggregateVolumeStat(trade, userAddr, srcAmount, ethAmount, trade.FiatAmount, volumeStats)
+	self.aggregateVolumeStat(trade, userAddr, 0, ethAmount, trade.FiatAmount, volumeStats)
 
 	// reserve volume
 	eth := common.ETHToken()
