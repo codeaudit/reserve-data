@@ -930,7 +930,8 @@ func (self *BoltStorage) StoreTradeHistory(data common.AllTradeHistory, timepoin
 				}
 			}
 		}
-		log.Printf("History: %+v", data)
+		jsonlog, _ := json.Marshal(data)
+		log.Printf("History: %s", jsonlog)
 
 		// add new data
 		dataJson, err = json.Marshal(currentData)
