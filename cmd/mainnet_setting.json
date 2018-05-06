@@ -237,6 +237,16 @@
       "internal use": false,
       "listed": true
     },
+    "DGX": {
+      "name": "Digix Gold",
+      "decimals": 9,
+      "address": "0x4f3afec4e5a3f2a6a1a411def7d7dfe50ee057bf",
+      "minimalRecordResolution": "1000000000000000",
+      "maxPerBlockImbalance": "2711997842670896021504",
+      "maxTotalImbalance": "3833713935933528080384",
+      "internal use": true,
+      "listed": true
+    },
     "ETH": {
       "name": "Ethereum",
       "decimals": 18,
@@ -266,6 +276,10 @@
       "ZIL": "0x44d34a119ba21a42167ff8b77a88f0fc7bb2db90",
       "AST": "0x44d34a119ba21a42167ff8b77a88f0fc7bb2db90",
       "LINK": "0x44d34a119ba21a42167ff8b77a88f0fc7bb2db90"
+    },
+    "stable_exchange": {
+      "ETH": "0xFDF28Bf25779ED4cA74e958d54653260af604C20",
+      "DGX": "0xFDF28Bf25779ED4cA74e958d54653260af604C20"
     }
   },
   "permission": {

@@ -98,6 +98,7 @@ func (self *StableEx) FetchEBalanceData(timepoint uint64) (common.EBalanceEntry,
 	result := common.EBalanceEntry{}
 	result.Timestamp = common.Timestamp(fmt.Sprintf("%d", timepoint))
 	result.Valid = true
+	result.Status = true
 	// TODO: Get balance data from dgx connector
 	result.ReturnTime = common.GetTimestamp()
 	result.AvailableBalance = map[string]float64{"DGX": 0, "ETH": 0}
