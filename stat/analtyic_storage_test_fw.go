@@ -51,19 +51,20 @@ func (self *AnalyticStorageTest) TestPriceAnalyticData() error {
 	if afpFloat != 0.6555 {
 		return fmt.Errorf("Expect mid afp price to be 0.6555, got %v", afpFloat)
 	}
-	fileName := "testFile"
-	//test ExportPruneExpire
-	nRecord, err := self.storage.ExportPruneExpired(31*86400000+1, fileName)
-	if err != nil {
-		return err
-	}
-	if nRecord != 1 {
-		return fmt.Errorf("Expect pruned 1 record, got %d", nRecord)
-	}
 
-	//test Backupfile
-	if err = self.storage.BackupFile(fileName); err != nil {
-		return err
-	}
+	//fileName := "testFile"
+	//test ExportPruneExpire
+	//nRecord, err := self.storage.ExportPruneExpired(31*86400000+1, fileName)
+	// if err != nil {
+	// 	return err
+	// }
+	// if nRecord != 1 {
+	// 	return fmt.Errorf("Expect pruned 1 record, got %d", nRecord)
+	// }
+
+	// //test Backupfile
+	// if err = self.storage.BackupFile(fileName); err != nil {
+	// 	return err
+	// }
 	return err
 }

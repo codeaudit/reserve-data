@@ -49,7 +49,7 @@ func (self *BoltAnalyticStorage) UpdatePriceAnalyticData(timestamp uint64, value
 	return err
 }
 
-func (self *BoltAnalyticStorage) ExportPruneExpiredPriceAnalyticData(currentTime uint64, fileName string) (nRecord uint64, err error) {
+func (self *BoltAnalyticStorage) ExportExpiredPriceAnalyticData(currentTime uint64, fileName string) (nRecord uint64, err error) {
 	expiredTimestampByte := uint64ToBytes(currentTime - PRICE_ANALYTIC_EXPIRED)
 	outFile, err := os.Create(fileName)
 	defer outFile.Close()
@@ -80,14 +80,27 @@ func (self *BoltAnalyticStorage) ExportPruneExpiredPriceAnalyticData(currentTime
 				return err
 			}
 			nRecord++
+		}
+		return nil
+	})
+	return nRecord, err
+}
+
+func (self *BoltAnalyticStorage) PruneExpiredPriceAnalyticData(currentTime uint64) (nRecord uint64, err error) {
+	expiredTimestampByte := uint64ToBytes(currentTime - PRICE_ANALYTIC_EXPIRED)
+	err = self.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(PRICE_ANALYTIC_BUCKET))
+		c := b.Cursor()
+		for k, _ := c.First(); k != nil && bytes.Compare(k, expiredTimestampByte) <= 0; k, _ = c.Next() {
 			err = b.Delete(k)
 			if err != nil {
 				return err
 			}
+			nRecord++
 		}
 		return nil
 	})
-	return
+	return nRecord, err
 }
 
 func (self *BoltAnalyticStorage) GetPriceAnalyticData(fromTime uint64, toTime uint64) ([]common.AnalyticPriceResponse, error) {

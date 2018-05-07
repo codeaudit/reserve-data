@@ -93,7 +93,7 @@ func serverStart(cmd *cobra.Command, args []string) {
 	runtime.GOMAXPROCS(numCPU)
 	configLog(stdoutLog)
 	//create temp folder for exported file
-	err := os.MkdirAll("../exported", 0730)
+	err := os.MkdirAll("./exported", 0730)
 	if err != nil {
 		panic(err)
 	}
