@@ -40,6 +40,7 @@ func enforceFolderPath(fp string) string {
 	}
 	return fp
 }
+
 func (archive *s3Archive) UploadFile(bucketName string, awsfolderPath string, filePath string) error {
 	file, err := os.Open(filePath)
 	defer file.Close()
@@ -51,7 +52,15 @@ func (archive *s3Archive) UploadFile(bucketName string, awsfolderPath string, fi
 		Key:    aws.String(enforceFolderPath(awsfolderPath) + getFileNameFromFilePath(filePath)),
 		Body:   file,
 	})
+	return err
+}
 
+func (archive *s3Archive) RemoveFile(bucketName string, awsfolderPath string, filePath string) error {
+	input := &s3.DeleteObjectInput{
+		Bucket: aws.String(bucketName),
+		Key:    aws.String(enforceFolderPath(awsfolderPath) + getFileNameFromFilePath(filePath)),
+	}
+	_, err := archive.svc.DeleteObject(input)
 	return err
 }
 
@@ -91,11 +100,6 @@ func (archive *s3Archive) CheckFileIntergrity(bucketName string, awsfolderPath s
 		}
 	}
 	return false, nil
-}
-
-func (archive *s3Archive) RemoveFile(filePath string, bucketName string) error {
-	var err error
-	return err
 }
 
 func (archive *s3Archive) GetAuthDataPath() string {

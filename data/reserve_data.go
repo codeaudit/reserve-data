@@ -272,24 +272,38 @@ func (self ReserveData) ControlAuthDataSize() error {
 		if err != nil {
 			log.Printf("ERROR: StorageController export and prune AuthData operation failed: %s", err)
 		} else {
+			var integrity bool
 			if nRecord > 0 {
-				err = self.storageController.Arch.BackupFile(self.storageController.Arch.GetReserveDataBucketName(), self.storageController.Arch.GetAuthDataPath(), fileName)
+				err = self.storageController.Arch.UploadFile(self.storageController.Arch.GetReserveDataBucketName(), self.storageController.Arch.GetAuthDataPath(), fileName)
 				if err != nil {
-					log.Printf("StorageController: Back up file failed: %s", err)
+					log.Printf("StorageController: Upload file failed: %s", err)
+				} else {
+					integrity, err = self.storageController.Arch.CheckFileIntergrity(self.storageController.Arch.GetReserveDataBucketName(), self.storageController.Arch.GetAuthDataPath(), fileName)
+					if err != nil {
+						log.Printf("ERROR: StorageController: error in file integrity check (%s):", err)
+					}
+					if !integrity {
+						log.Printf("ERROR: StorageController: file upload corrupted")
+
+					}
+					removalErr := self.storageController.Arch.RemoveFile(self.storageController.Arch.GetReserveDataBucketName(), self.storageController.Arch.GetAuthDataPath(), fileName)
+					if removalErr != nil {
+						log.Printf("ERROR: StorageController: cannot remove remote file :(%s)", removalErr)
+					}
 				}
 			}
-			if err == nil {
+			if integrity && err == nil {
 				nPrunedRecords, err := self.storage.PruneExpiredAuthData(common.TimeToTimepoint(t))
 				if err != nil {
 					log.Printf("StorageController: Can not prune Auth Data (%s)", err)
 				} else if nPrunedRecords != nRecord {
 					log.Printf("StorageController: Number of Exported Data is %d, which is different from number of pruned data %d", nRecord, nPrunedRecords)
 				} else {
-					os.Remove(fileName)
 					log.Printf("StorageController: exported and pruned %d expired records from AuthData", nRecord)
 				}
 			}
 		}
+		os.Remove(fileName)
 	}
 }
 
