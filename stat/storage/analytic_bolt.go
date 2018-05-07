@@ -22,7 +22,7 @@ type BoltAnalyticStorage struct {
 	db *bolt.DB
 }
 
-func NewBoltAnalyticStorage(dbPath, awsKeyPath string) (*BoltAnalyticStorage, error) {
+func NewBoltAnalyticStorage(dbPath string) (*BoltAnalyticStorage, error) {
 	var err error
 	var db *bolt.DB
 	db, err = bolt.Open(dbPath, 0600, nil)

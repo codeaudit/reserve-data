@@ -97,7 +97,7 @@ func (self *Config) AddStatConfig(settingPath SettingPaths, addressConfig common
 		thirdpartyReserves = append(thirdpartyReserves, ethereum.HexToAddress(address))
 	}
 
-	analyticStorage, err := statstorage.NewBoltAnalyticStorage(settingPath.analyticStoragePath, settingPath.secretPath)
+	analyticStorage, err := statstorage.NewBoltAnalyticStorage(settingPath.analyticStoragePath)
 	if err != nil {
 		panic(err)
 	}
