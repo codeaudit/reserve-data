@@ -92,7 +92,11 @@ func serverStart(cmd *cobra.Command, args []string) {
 	numCPU := runtime.NumCPU()
 	runtime.GOMAXPROCS(numCPU)
 	configLog(stdoutLog)
-
+	//create temp folder for exported file
+	err := os.MkdirAll("../exported", 0730)
+	if err != nil {
+		panic(err)
+	}
 	//get configuration from ENV variable
 	kyberENV := os.Getenv("KYBER_ENV")
 	if kyberENV == "" {

@@ -41,7 +41,7 @@ const (
 	MAX_GET_RATES_PERIOD               uint64 = 86400000 //1 days in milisec
 	UI64DAY                            uint64 = uint64(time.Hour * 24)
 	EXPORT_BATCH                       int    = 1
-	AUTH_DATA_EXPIRED_DURATION         uint64 = 10 * 86400000 //10day in milisec
+	AUTH_DATA_EXPIRED_DURATION         uint64 = 1 * 86400000 //10day in milisec
 	STABLE_TOKEN_PARAMS_BUCKET         string = "stable-token-params"
 	PENDING_STABLE_TOKEN_PARAMS_BUCKET string = "pending-stable-token-params"
 	GOLD_BUCKET                        string = "gold_feeds"
@@ -230,16 +230,17 @@ func (self *BoltStorage) StoreGoldInfo(data common.GoldData) error {
 }
 
 func (self *BoltStorage) ExportExpiredAuthData(currentTime uint64, fileName string) (nRecord uint64, err error) {
-
 	expiredTimestampByte := uint64ToBytes(currentTime - AUTH_DATA_EXPIRED_DURATION)
 	outFile, err := os.Create(fileName)
 	defer outFile.Close()
 	if err != nil {
 		return 0, err
 	}
+
 	err = self.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(AUTH_DATA_BUCKET))
 		c := b.Cursor()
+
 		for k, v := c.First(); k != nil && bytes.Compare(k, expiredTimestampByte) <= 0; k, v = c.Next() {
 			timestamp := bytesToUint64(k)
 
@@ -262,13 +263,34 @@ func (self *BoltStorage) ExportExpiredAuthData(currentTime uint64, fileName stri
 				return err
 			}
 			nRecord++
-			err = b.Delete(k)
 			if err != nil {
 				return err
 			}
 		}
 		return nil
 	})
+
+	return nRecord, err
+}
+
+func (self *BoltStorage) PruneExpiredAuthData(currentTime uint64) (nRecord uint64, err error) {
+	expiredTimestampByte := uint64ToBytes(currentTime - AUTH_DATA_EXPIRED_DURATION)
+
+	err = self.db.Update(func(tx *bolt.Tx) error {
+		log.Printf("StorageController: number of record before: %d", self.GetNumberOfVersion(tx, AUTH_DATA_BUCKET))
+		b := tx.Bucket([]byte(AUTH_DATA_BUCKET))
+		c := b.Cursor()
+		for k, _ := c.First(); k != nil && bytes.Compare(k, expiredTimestampByte) <= 0; k, _ = c.Next() {
+			err = b.Delete(k)
+			if err != nil {
+				return err
+			}
+			nRecord++
+		}
+		log.Printf("StorageController: number of record after: %d", self.GetNumberOfVersion(tx, AUTH_DATA_BUCKET))
+		return err
+	})
+
 	return nRecord, err
 }
 

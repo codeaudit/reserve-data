@@ -267,10 +267,10 @@ func (self ReserveData) ControlAuthDataSize() error {
 		t := <-self.storageController.Runner.GetAuthBucketTicker()
 		timepoint := common.TimeToTimepoint(t)
 		log.Printf("StorageController: got signal in AuthData controller channel with timestamp %d", common.TimeToTimepoint(t))
-		fileName := fmt.Sprintf("ExpiredAuthData_at_%s", time.Unix(int64(timepoint/1000), 0).UTC())
+		fileName := fmt.Sprintf("../exported/ExpiredAuthData_at_%s", time.Unix(int64(timepoint/1000), 0).UTC())
 		nRecord, err := self.storage.ExportExpiredAuthData(common.TimeToTimepoint(t), fileName)
 		if err != nil {
-			log.Printf("ERROR: StorageController export and prune AuthData operation failed: %s, err")
+			log.Printf("ERROR: StorageController export and prune AuthData operation failed: %s", err)
 		} else {
 			if nRecord > 0 {
 				err = self.storageController.Arch.BackupFile(self.storageController.Arch.GetReserveDataBucketName(), self.storageController.Arch.GetAuthDataPath(), fileName)
@@ -279,8 +279,15 @@ func (self ReserveData) ControlAuthDataSize() error {
 				}
 			}
 			if err == nil {
-				os.Remove(fileName)
-				log.Printf("StorageController: exported and pruned %d expired records from AuthData", nRecord)
+				nPrunedRecords, err := self.storage.PruneExpiredAuthData(common.TimeToTimepoint(t))
+				if err != nil {
+					log.Printf("StorageController: Can not prune Auth Data (%s)", err)
+				} else if nPrunedRecords != nRecord {
+					log.Printf("StorageController: Number of Exported Data is %d, which is different from number of pruned data %d", nRecord, nPrunedRecords)
+				} else {
+					os.Remove(fileName)
+					log.Printf("StorageController: exported and pruned %d expired records from AuthData", nRecord)
+				}
 			}
 		}
 	}
