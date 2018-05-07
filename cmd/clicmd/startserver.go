@@ -163,8 +163,8 @@ func serverStart(cmd *cobra.Command, args []string) {
 	}
 
 	if !noCore {
-		nonceCorpus := nonce.NewTimeWindow(config.BlockchainSigner.GetAddress())
-		nonceDeposit := nonce.NewTimeWindow(config.DepositSigner.GetAddress())
+		nonceCorpus := nonce.NewTimeWindow(config.BlockchainSigner.GetAddress(), 2000)
+		nonceDeposit := nonce.NewTimeWindow(config.DepositSigner.GetAddress(), 10000)
 		bc.RegisterPricingOperator(config.BlockchainSigner, nonceCorpus)
 		bc.RegisterDepositOperator(config.DepositSigner, nonceDeposit)
 	}
