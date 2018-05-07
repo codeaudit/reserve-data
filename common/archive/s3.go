@@ -19,6 +19,9 @@ type s3Archive struct {
 }
 
 func enforceFolderPath(fp string) string {
+	if len(fp) < 1 {
+		return fp
+	}
 	if string(fp[len(fp)-1]) != "/" {
 		fp = fp + "/"
 	}
