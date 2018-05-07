@@ -2,7 +2,6 @@ package archive
 
 type Archive interface {
 	RemoveFile(bucketName string, destinationFolder string, filePath string) error
-	BackupFile(bucketName string, destinationFolder string, filePath string) error
 	UploadFile(bucketName string, destinationFolder string, filePath string) error
 	CheckFileIntergrity(bucketName string, destinationFolder string, filePath string) (bool, error)
 	GetAuthDataPath() string

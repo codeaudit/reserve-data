@@ -29,7 +29,16 @@ func NewBoltAnalyticStorage(dbPath string) (*BoltAnalyticStorage, error) {
 	if err != nil {
 		panic(err)
 	}
-
+	err = db.Update(func(tx *bolt.Tx) error {
+		_, err = tx.CreateBucketIfNotExists([]byte(PRICE_ANALYTIC_BUCKET))
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		panic(err)
+	}
 	storage := BoltAnalyticStorage{db}
 	return &storage, nil
 }

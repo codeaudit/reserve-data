@@ -1,7 +1,6 @@
 package archive
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -17,21 +16,6 @@ type s3Archive struct {
 	uploader *s3manager.Uploader
 	svc      *s3.S3
 	awsConf  AWSConfig
-}
-
-func (archive *s3Archive) BackupFile(bucketName string, destinationFolder string, filePath string) error {
-	err := archive.UploadFile(bucketName, destinationFolder, filePath)
-	if err != nil {
-		return err
-	}
-	intergrity, err := archive.CheckFileIntergrity(bucketName, destinationFolder, filePath)
-	if err != nil {
-		return err
-	}
-	if !intergrity {
-		return fmt.Errorf("Archive: Upload File  %s: corrupted", filePath)
-	}
-	return nil
 }
 
 func enforceFolderPath(fp string) string {
