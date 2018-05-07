@@ -8,13 +8,13 @@ import (
 
 	"github.com/KyberNetwork/reserve-data/common"
 	"github.com/KyberNetwork/reserve-data/common/archive"
-	"github.com/KyberNetwork/reserve-data/data/storagecontroller"
+	"github.com/KyberNetwork/reserve-data/data/datapruner"
 )
 
 type ReserveData struct {
 	storage           Storage
 	fetcher           Fetcher
-	storageController storagecontroller.StorageController
+	storageController datapruner.StorageController
 	globalStorage     GlobalStorage
 }
 
@@ -315,8 +315,8 @@ func (self ReserveData) RunStorageController() error {
 	return nil
 }
 
-func NewReserveData(storage Storage, fetcher Fetcher, storageControllerRunner storagecontroller.StorageControllerRunner, arch archive.Archive, globalStorage GlobalStorage) *ReserveData {
-	storageController, err := storagecontroller.NewStorageController(storageControllerRunner, arch)
+func NewReserveData(storage Storage, fetcher Fetcher, storageControllerRunner datapruner.StorageControllerRunner, arch archive.Archive, globalStorage GlobalStorage) *ReserveData {
+	storageController, err := datapruner.NewStorageController(storageControllerRunner, arch)
 	if err != nil {
 		panic(err)
 	}

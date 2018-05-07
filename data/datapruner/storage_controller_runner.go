@@ -1,4 +1,4 @@
-package storagecontroller
+package datapruner
 
 import (
 	"time"

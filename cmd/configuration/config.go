@@ -10,10 +10,10 @@ import (
 	"github.com/KyberNetwork/reserve-data/common/blockchain"
 	"github.com/KyberNetwork/reserve-data/core"
 	"github.com/KyberNetwork/reserve-data/data"
+	"github.com/KyberNetwork/reserve-data/data/datapruner"
 	"github.com/KyberNetwork/reserve-data/data/fetcher"
 	"github.com/KyberNetwork/reserve-data/data/fetcher/http_runner"
 	"github.com/KyberNetwork/reserve-data/data/storage"
-	"github.com/KyberNetwork/reserve-data/data/storagecontroller"
 	"github.com/KyberNetwork/reserve-data/exchange/binance"
 	"github.com/KyberNetwork/reserve-data/exchange/bittrex"
 	"github.com/KyberNetwork/reserve-data/exchange/huobi"
@@ -57,7 +57,7 @@ type Config struct {
 
 	World                *world.TheWorld
 	FetcherRunner        fetcher.FetcherRunner
-	DataControllerRunner storagecontroller.StorageControllerRunner
+	DataControllerRunner datapruner.StorageControllerRunner
 	StatFetcherRunner    stat.FetcherRunner
 	StatControllerRunner statpruner.ControllerRunner
 	FetcherExchanges     []fetcher.Exchange
@@ -172,7 +172,7 @@ func (self *Config) AddCoreConfig(settingPath SettingPaths, addressConfig common
 	}
 
 	var fetcherRunner fetcher.FetcherRunner
-	var dataControllerRunner storagecontroller.StorageControllerRunner
+	var dataControllerRunner datapruner.StorageControllerRunner
 	if os.Getenv("KYBER_ENV") == "simulation" {
 		fetcherRunner = http_runner.NewHttpRunner(8001)
 	} else {
@@ -184,7 +184,7 @@ func (self *Config) AddCoreConfig(settingPath SettingPaths, addressConfig common
 			10*time.Minute, // tradeHistory fetching interval
 			10*time.Second, // global data fetching interval
 		)
-		dataControllerRunner = storagecontroller.NewStorageControllerTickerRunner(24 * time.Hour)
+		dataControllerRunner = datapruner.NewStorageControllerTickerRunner(24 * time.Hour)
 	}
 
 	pricingSigner := PricingSignerFromConfigFile(settingPath.secretPath)

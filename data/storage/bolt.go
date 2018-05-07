@@ -277,7 +277,6 @@ func (self *BoltStorage) PruneExpiredAuthData(currentTime uint64) (nRecord uint6
 	expiredTimestampByte := uint64ToBytes(currentTime - AUTH_DATA_EXPIRED_DURATION)
 
 	err = self.db.Update(func(tx *bolt.Tx) error {
-		log.Printf("StorageController: number of record before: %d", self.GetNumberOfVersion(tx, AUTH_DATA_BUCKET))
 		b := tx.Bucket([]byte(AUTH_DATA_BUCKET))
 		c := b.Cursor()
 		for k, _ := c.First(); k != nil && bytes.Compare(k, expiredTimestampByte) <= 0; k, _ = c.Next() {
@@ -287,7 +286,6 @@ func (self *BoltStorage) PruneExpiredAuthData(currentTime uint64) (nRecord uint6
 			}
 			nRecord++
 		}
-		log.Printf("StorageController: number of record after: %d", self.GetNumberOfVersion(tx, AUTH_DATA_BUCKET))
 		return err
 	})
 

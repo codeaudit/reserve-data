@@ -1,4 +1,4 @@
-package storagecontroller
+package datapruner
 
 import (
 	"github.com/KyberNetwork/reserve-data/common/archive"
