@@ -53,6 +53,9 @@ func (archive *s3Archive) RemoveFile(bucketName string, awsfolderPath string, fi
 
 func getFileNameFromFilePath(filePath string) string {
 	elems := strings.Split(filePath, "/")
+	if len(elems) < 1 {
+		return filePath
+	}
 	fileName := elems[len(elems)-1]
 	return fileName
 }
