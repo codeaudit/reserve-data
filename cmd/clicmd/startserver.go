@@ -142,6 +142,7 @@ func serverStart(cmd *cobra.Command, args []string) {
 			deployBlock,
 			config.ReserveAddress,
 			config.SetRateAddress,
+			config.BeginBlockSetRate,
 			config.ApiKey,
 			config.ThirdPartyReserves,
 		)

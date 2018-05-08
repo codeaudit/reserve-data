@@ -81,7 +81,9 @@ type Config struct {
 	SetRateAddress     ethereum.Address
 	ThirdPartyReserves []ethereum.Address
 
-	ApiKey    string
+	BeginBlockSetRate uint64
+	ApiKey            string
+
 	ChainType string
 }
 
@@ -142,6 +144,7 @@ func (self *Config) AddStatConfig(settingPath SettingPaths, addressConfig common
 	}
 
 	apiKey := GetAPIKey(settingPath.secretPath)
+	beginBlockSetRate := GetBeginBlockSetRate(settingPath.settingPath)
 
 	self.StatStorage = statStorage
 	self.AnalyticStorage = analyticStorage
@@ -156,6 +159,7 @@ func (self *Config) AddStatConfig(settingPath SettingPaths, addressConfig common
 	self.NetworkAddress = networkAddr
 	self.WhitelistAddress = whitelistAddr
 	self.SetRateAddress = setRateAddr
+	self.BeginBlockSetRate = beginBlockSetRate
 	self.ApiKey = apiKey
 }
 
