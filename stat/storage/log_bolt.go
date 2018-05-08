@@ -90,7 +90,30 @@ func (self *BoltLogStorage) LoadLastLogIndex(tx *bolt.Tx) (uint64, error) {
 	return tradeBlock, nil
 }
 
-func (self *BoltLogStorage) LoadLastTradeLogIndex(tx *bolt.Tx) (uint64, uint, error) {
+// func (self *BoltLogStorage) LoadLastTradeLogIndex(tx *bolt.Tx) (uint64, uint, error) {
+// 	b := tx.Bucket([]byte(TRADELOG_BUCKET))
+// 	c := b.Cursor()
+// 	k, v := c.Last()
+// 	if k == nil {
+// 		return 0, 0, nil
+// 	}
+
+// 	record := common.TradeLog{}
+// 	if err := json.Unmarshal(v, &record); err != nil {
+// 		return 0, 0, err
+// 	}
+// 	return record.BlockNumber, record.Index, nil
+// }
+
+func (self *BoltLogStorage) LoadLastTradeLogIndex() (uint64, uint, error) {
+	block, index, err := self.db.View(func(tx *bolt.Tx) (uint64, uint, error) {
+		b := tx.Bucket([]byte(TRADELOG_BUCKET))
+		c := b.Cursor()
+		k, v := c.Last()
+		if k == nil {
+			return 0, 0, nil
+		}
+	})
 	b := tx.Bucket([]byte(TRADELOG_BUCKET))
 	c := b.Cursor()
 	k, v := c.Last()

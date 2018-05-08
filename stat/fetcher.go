@@ -828,7 +828,7 @@ func (self *Fetcher) aggregateVolumeStats(trade common.TradeLog, volumeStats map
 
 	// country token volume
 	key = fmt.Sprintf("%s_%s", trade.Country, assetAddr)
-	log.Printf("aggegate volume: %s", key)
+	//log.Printf("aggegate volume: %s", key)
 	self.aggregateVolumeStat(trade, key, assetAmount, ethAmount, trade.FiatAmount, volumeStats)
 
 	return nil
