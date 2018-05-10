@@ -639,19 +639,23 @@ func (self *Fetcher) GetTradeGeo(txHash string) (string, string, error) {
 	return "", "unknown", err
 }
 
+func enforceFromBlock(fromBlock uint64) uint64 {
+	if fromBlock == 0 {
+		return 0
+	}
+	return fromBlock - 1
+
+}
+
 // return block number that we just fetched the logs
 func (self *Fetcher) FetchLogs(fromBlock uint64, toBlock uint64, timepoint uint64) (uint64, error) {
 	logs, err := self.blockchain.GetLogs(fromBlock, toBlock)
 	if err != nil {
 		log.Printf("LogFetcher - fetching logs data from block %d failed, error: %v", fromBlock, err)
-		if fromBlock == 0 {
-			return 0, err
-		} else {
-			return fromBlock - 1, err
-		}
+		return enforceFromBlock(fromBlock), err
 	} else {
 		if len(logs) > 0 {
-			var maxBlock uint64 = 0
+			var maxBlock uint64 = fromBlock - 1
 			for _, il := range logs {
 				if il.Type() == "TradeLog" {
 					l := il.(common.TradeLog)
@@ -659,16 +663,33 @@ func (self *Fetcher) FetchLogs(fromBlock uint64, toBlock uint64, timepoint uint6
 					ip, country, err := self.GetTradeGeo(txHash.Hex())
 					l.IP = ip
 					l.Country = country
-
-					err = self.logStorage.StoreTradeLog(l, timepoint)
-					if err != nil {
-						log.Printf("LogFetcher - storing trade log failed, ignore that log and proceed with remaining logs, err: %+v", err)
+					block, index, uErr := self.logStorage.LoadLastTradeLogIndex()
+					if uErr == nil && (block > l.BlockNumber || (block == l.BlockNumber && index >= l.Index)) {
+						log.Printf("LogFetcher - Duplicated trade log %+v (new block number %d is smaller or equal to latest block number %d and tx index %d is smaller or equal to last log tx index %d)", l, block, l.BlockNumber, index, l.Index)
+					} else {
+						if uErr != nil {
+							log.Printf("Can not check duplicated status of current trade log, process to store it (overwrite the log if duplicated)")
+						}
+						err = self.logStorage.StoreTradeLog(l, timepoint)
+						if err != nil {
+							log.Printf("LogFetcher - at block %d, storing trade log failed, stop at current block and wait till next ticker, err: %+v", l.BlockNo(), err)
+							return maxBlock, err
+						}
 					}
 				} else if il.Type() == "SetCatLog" {
 					l := il.(common.SetCatLog)
-					err = self.logStorage.StoreCatLog(l)
-					if err != nil {
-						log.Printf("LogFetcher - storing cat log failed, ignore that log and proceed with remaining logs, err: %+v", err)
+					block, index, uErr := self.logStorage.LoadLastCatLogIndex()
+					if uErr == nil && (block > l.BlockNumber || (block == l.BlockNumber && index >= l.Index)) {
+						log.Printf("LogFetcher - Duplicated trade log %+v (new block number %d is smaller or equal to latest block number %d and tx index %d is smaller or equal to last log tx index %d)", l, block, l.BlockNumber, index, l.Index)
+					} else {
+						if uErr != nil {
+							log.Printf("Can not check duplicated status of current cat log, process to store it(overwrite the log if duplicated)")
+						}
+						err = self.logStorage.StoreCatLog(l)
+						if err != nil {
+							log.Printf("LogFetcher - at block %d, storing cat log failed, stop at current block and wait till next ticker, err: %+v", l.BlockNo(), err)
+							return maxBlock, err
+						}
 					}
 				}
 				if il.BlockNo() > maxBlock {
@@ -678,7 +699,7 @@ func (self *Fetcher) FetchLogs(fromBlock uint64, toBlock uint64, timepoint uint6
 			}
 			return maxBlock, nil
 		} else {
-			return fromBlock - 1, nil
+			return enforceFromBlock(fromBlock), nil
 		}
 	}
 }
