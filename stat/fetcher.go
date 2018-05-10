@@ -139,7 +139,6 @@ func (self *Fetcher) FetchTxs(client http.Client) {
 		log.Println("Cannot get latest block nummber")
 		return
 	}
-	log.Println("toBlock: ", toBlock)
 	api := fmt.Sprintf("http://api.etherscan.io/api?module=account&action=txlist&address=%s&startblock=%d&endblock=%d&apikey=%s", self.setRateAddress.String(), fromBlock, toBlock, self.apiKey)
 	log.Println("api: ", api)
 	resp, err := client.Get(api)
@@ -181,22 +180,23 @@ func (self *Fetcher) FetchTxs(client http.Client) {
 			}
 		}
 		log.Println("fetch done!")
-		blockNumMarker = toBlock + 1
+		if toBlock == self.currentBlock {
+			blockNumMarker = toBlock	
+		} else {
+			blockNumMarker = toBlock + 1			
+		}
 	}
 }
 
 func (self *Fetcher) GetToBlock() uint64 {
 	currentBlock := self.currentBlock
-	log.Println("toBlock current: ", currentBlock)
 	if currentBlock == 0 {
 		return 0
 	}
 	if currentBlock - blockNumMarker <= BLOCK_RANGE {
-		log.Println("run this")
-		sleepTime = 2 * time.Minute
+		sleepTime = 10 * time.Minute
 		return currentBlock
 	}
-	log.Println("run that")
 	toBlock := blockNumMarker + BLOCK_RANGE
 	sleepTime = time.Second
 	return toBlock

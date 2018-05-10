@@ -5,7 +5,7 @@ import (
 	"log"
 	"strconv"
 	"encoding/json"
-	// "fmt"
+	"fmt"
 	"time"
 	"math/big"
 
@@ -69,7 +69,6 @@ func (self *BoltFeeSetRateStorage) GetLastBlockChecked() (uint64, error) {
 		log.Println(err)
 		return 0, err
 	}
-	log.Println("lastBlockChecked: ", latestBlockChecked)
 	return latestBlockChecked, nil
 }
 
@@ -121,9 +120,9 @@ func (self *BoltFeeSetRateStorage) StoreTransaction(txs []common.SetRateTxInfo) 
 func (self *BoltFeeSetRateStorage) GetFeeSetRateByDay(fromTime, toTime uint64) ([]common.FeeSetRate, error) {
 	fromTimeSecond := fromTime / 1000
 	toTimeSecond := toTime / 1000
-	// if toTimeSecond - fromTimeSecond > MAX_FEE_SETRATE_TIME_RAGE {
-	// 	return []common.FeeSetRate{}, fmt.Errorf("Time range is too broad, it must be smaller or equal to three months (%d seconds)", MAX_FEE_SETRATE_TIME_RAGE)
-	// }
+	if toTimeSecond - fromTimeSecond > MAX_FEE_SETRATE_TIME_RAGE {
+		return []common.FeeSetRate{}, fmt.Errorf("Time range is too broad, it must be smaller or equal to three months (%d seconds)", MAX_FEE_SETRATE_TIME_RAGE)
+	}
 
 	seqFeeSetRate := []common.FeeSetRate{}
 	var err error
@@ -158,18 +157,7 @@ func (self *BoltFeeSetRateStorage) GetFeeSetRateByDay(fromTime, toTime uint64) (
 		}
 		return nil
 	})
-	log.Println("run this")
-	calculate(seqFeeSetRate)
 	return seqFeeSetRate, err
-}
-
-func calculate(seqFeeSetRate []common.FeeSetRate) {
-	sum := big.NewFloat(0)
-	quoValue := big.NewFloat(0)
-	for _, v := range seqFeeSetRate {
-		sum.Add(sum, v.GasUsed)
-	}
-	log.Printf("sum: %v, average: %v", sum, quoValue.Quo(sum, big.NewFloat(float64(len(seqFeeSetRate)))))
 }
 
 func getFeeSetRate(c *bolt.Cursor, tickBlock, nextTickBlock, tickTime []byte) (common.FeeSetRate, error) {
